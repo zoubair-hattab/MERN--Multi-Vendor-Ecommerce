@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  background-color: #f6f6f5;
+  scroll-behavior: smooth;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #f6f6f5;
+}
+::-webkit-scrollbar-track {
+  background-color: rgb(57, 54, 54);
+}
+.active_indicator {
+  @apply absolute bottom-[-27%] left-0 h-[3px] w-full bg-[crimson];
+}
+.shop_name {
+  @apply pt-3 text-[15px] text-blue-400 pb-3;
+}
+.button {
+  @apply w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer;
+}
+.dashboard {
+  height: calc(100vh - 71px);
+}
