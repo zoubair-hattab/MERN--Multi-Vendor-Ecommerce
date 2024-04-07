@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { backend_url, urlServer } from '../../server';
 import {
@@ -10,6 +10,7 @@ import { DataGrid } from '@material-ui/data-grid';
 import { Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
@@ -472,11 +473,49 @@ const PaymentMethod = () => {
 const Address = () => {
   const [open, setOpen] = useState(false);
   const [formAddress, setFormAddress] = useState({});
+  const { currentUser } = useSelector((state) => state.user);
+  const [address, setAddress] = useState(currentUser?.addresses);
   const addressType = [
     { name: 'Default' },
     { name: 'Home' },
     { name: 'Office' },
   ];
+
+  const handleChangeInput = (e) => {
+    setFormAddress({ ...formAddress, [e.target.id]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.patch(
+        `${urlServer}/user/update-address`,
+        formAddress,
+        {
+          withCredentials: true,
+        }
+      );
+      setAddress(data?.message?.addresses);
+      toast.success('Add new Address');
+      setOpen(false);
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
+  const handleDelete = async (add) => {
+    try {
+      const { data } = await axios.delete(
+        `${urlServer}/user/delete-address/${add._id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      const filterAddress = address.filter((item) => item._id != add._id);
+      setAddress(filterAddress);
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    }
+  };
   return (
     <div className="w-full px-5">
       <div className="flex w-full items-center justify-between">
@@ -491,25 +530,47 @@ const Address = () => {
         </div>
       </div>
       <br />
-      <div className="w-full bg-white h-min md:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10">
-        <div className="flex items-center">
-          <h5 className="pl-5 font-[600]">Default</h5>
-        </div>
-        <div className="pl-8 flex items-center">
-          <h6 className="text-[12px] md:text-[unset]">
-            494 Erdman Pasaage, New Zoietown, Paraguay
-          </h6>
-        </div>
-        <div className="pl-8 flex items-center">
-          <h6 className="text-[12px] md:text-[unset]">(213) 840-9416</h6>
-        </div>
-        <div className="min-w-[10%] flex items-center justify-between pl-8">
-          <AiOutlineDelete size={25} className="cursor-pointer" />
-        </div>
+      <div className="flex flex-col gap-4">
+        {address.length > 0 ? (
+          address?.map((address) => (
+            <div
+              key={address._id}
+              className="w-full bg-white h-min md:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10"
+            >
+              <div className="flex items-center">
+                <h5 className="pl-5 font-[600]">{address?.addressType}</h5>
+              </div>
+              <div className="pl-8 flex items-center">
+                <h6 className="text-[12px] md:text-[unset]">
+                  {address.address1} {address.address2}
+                </h6>
+              </div>
+              <div className="pl-8 flex items-center">
+                <h6 className="text-[12px] md:text-[unset]">
+                  {currentUser?.phoneNumber}
+                </h6>
+              </div>
+              <div className="min-w-[10%] flex items-center justify-between pl-8">
+                <AiOutlineDelete
+                  onClick={() => handleDelete(address)}
+                  size={25}
+                  className="cursor-pointer"
+                />
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-lg text-gray-600">
+            There is no Address
+          </p>
+        )}
       </div>
       {open && (
         <div className="fixed top-0 left-0 w-full h-screen bg-[#00000026] z-[99999] flex items-center justify-center">
-          <form className="max-w-lg w-full h-[60%] bg-white overflow-y-auto shadow-md rounded-md py-6 px-3 flex flex-col gap-3 relative">
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-lg w-full h-[60%] bg-white overflow-y-auto shadow-md rounded-md py-6 px-3 flex flex-col gap-3 relative"
+          >
             <MdClose
               size={25}
               className="absolute top-3 right-3"
@@ -524,7 +585,8 @@ const Address = () => {
               </label>
               <select
                 id="country"
-                value={formAddress?.country}
+                onChange={handleChangeInput}
+                value={formAddress?.country || ''}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               >
                 <option value="choose country">Choose your country</option>
@@ -542,15 +604,16 @@ const Address = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="country" className="text-lg text-gray-600">
-                State
+              <label htmlFor="city" className="text-lg text-gray-600">
+                City
               </label>
               <select
-                id="country"
-                value={formAddress?.country}
+                id="city"
+                onChange={handleChangeInput}
+                value={formAddress?.city || ''}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               >
-                <option value="choose country">Choose your State</option>
+                <option value="">Choose your City</option>
                 {State?.getStatesOfCountry(formAddress?.country).map((item) => (
                   <option
                     className="block pb-2"
@@ -563,49 +626,53 @@ const Address = () => {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="country" className="text-lg text-gray-600">
+              <label htmlFor="address1" className="text-lg text-gray-600">
                 Address1
               </label>
               <input
                 type="text"
+                onChange={handleChangeInput}
                 id="address1"
-                value={formAddress?.address1}
+                value={formAddress?.address1 || ''}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="country" className="text-lg text-gray-600">
+              <label htmlFor="address2" className="text-lg text-gray-600">
                 Address2
               </label>
               <input
                 type="text"
+                onChange={handleChangeInput}
                 id="address2"
-                value={formAddress?.address2}
+                value={formAddress?.address2 || ''}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="country" className="text-lg text-gray-600">
+              <label htmlFor="zipCode" className="text-lg text-gray-600">
                 zipCode
               </label>
               <input
                 type="text"
+                onChange={handleChangeInput}
                 id="zipCode"
-                value={formAddress?.zipCode}
+                value={formAddress?.zipCode || ''}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="country" className="text-lg text-gray-600">
-                Country
+              <label htmlFor="addressType" className="text-lg text-gray-600">
+                Choose Address Type
               </label>
               <select
-                id="country"
-                value={formAddress?.country}
+                id="addressType"
+                value={formAddress?.addressType || ''}
+                onChange={handleChangeInput}
                 className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
               >
-                <option value="choose country">Choose Address Type</option>
+                <option value="">Choose Address Type</option>
                 {addressType?.map((item) => (
                   <option
                     className="block pb-2"
