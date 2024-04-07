@@ -106,6 +106,7 @@ const Register = () => {
             <FaRegUserCircle size={50} className="text-gray-600" />
           )}
           <button
+            type="button"
             onClick={() => fileInput.current.click()}
             className="shadow-sm rounded-md border border-gray-300  px-3"
           >
@@ -126,7 +127,7 @@ const Register = () => {
       </form>
       <p className="text-gray-600  mt-2 text-sm">
         If you have an account please,
-        <Link to="/sing-in" className="text-blue-500 pl-2 hover:underline ">
+        <Link to="/sign-in" className="text-blue-500 pl-2 hover:underline ">
           Login
         </Link>
       </p>

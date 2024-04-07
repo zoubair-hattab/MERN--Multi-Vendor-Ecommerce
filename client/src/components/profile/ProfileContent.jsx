@@ -1,21 +1,30 @@
 import React, { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { backend_url } from '../../server';
-import { MdOutlineAddAPhoto, MdOutlineTrackChanges } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { backend_url, urlServer } from '../../server';
+import {
+  MdClose,
+  MdOutlineAddAPhoto,
+  MdOutlineTrackChanges,
+} from 'react-icons/md';
 import { DataGrid } from '@material-ui/data-grid';
 import { Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
   AiOutlineDelete,
 } from 'react-icons/ai';
+import {
+  updateUserFail,
+  updateUserStart,
+  updateUserSuccess,
+} from '../../redux/reducers/userReducer';
+import { Country, State } from 'country-state-city';
 const ProfileContent = ({ active }) => {
   const { currentUser } = useSelector((state) => state.user);
-  const [userForm, setUserForm] = useState({
-    name: currentUser?.name || '',
-    email: currentUser?.email || '',
-  });
+  const [userForm, setUserForm] = useState({});
+
   const fileRef = useRef();
   const handleChnageInput = (e) => {
     setUserForm({
@@ -23,11 +32,35 @@ const ProfileContent = ({ active }) => {
       [e.target.id]: e.target.value,
     });
   };
+  const dispatch = useDispatch();
   const [file, setFile] = useState(null);
-  const handelSubmit = (e) => {
+  const handelSubmit = async (e) => {
     e.preventDefault();
     try {
-    } catch (error) {}
+      const formData = new FormData();
+      if (file) {
+        formData.append('image', file);
+      }
+      if (userForm?.name) {
+        formData.append('name', userForm?.name);
+      }
+      if (userForm?.email) {
+        formData.append('email', userForm?.email);
+      }
+
+      formData.append('phoneNumber', userForm?.phoneNumber);
+
+      formData.append('password', userForm?.password);
+
+      dispatch(updateUserStart());
+      const { data } = await axios.put(`${urlServer}/user/update`, formData, {
+        withCredentials: true,
+      });
+      dispatch(updateUserSuccess(data.message));
+    } catch (error) {
+      console.log(error);
+      dispatch(updateUserFail(error.message));
+    }
   };
   return (
     <>
@@ -35,12 +68,11 @@ const ProfileContent = ({ active }) => {
         <form className="w-full flex flex-col gap-6" onSubmit={handelSubmit}>
           <div className="w-32 h-32 relative mx-auto border-2 border-teal-500 rounded-full ">
             <img
-              src={`${
+              src={
                 file
                   ? URL.createObjectURL(file)
                   : `${backend_url}${currentUser?.avatar}`
               }
-              `}
               alt=""
               className="w-full h-full rounded-full object-cover"
             />
@@ -57,8 +89,8 @@ const ProfileContent = ({ active }) => {
             onChange={(e) => setFile(e.target.files[0])}
           />
           <div className="flex items-center flex-wrap gap-4">
-            <div className="flex-auto flex flex-col gap-2">
-              <label htmlFor="name">Full Name</label>
+            <div className="flex-auto flex flex-col gap-1">
+              <label htmlFor="c">Full Name</label>
               <input
                 type="text"
                 className="py-2 w-full border border-gay-300 focus:outline-none px-3"
@@ -67,7 +99,7 @@ const ProfileContent = ({ active }) => {
                 onChange={handleChnageInput}
               />
             </div>
-            <div className="flex-auto flex flex-col gap-2">
+            <div className="flex-auto flex flex-col gap-1">
               <label htmlFor="email">Email Address</label>
               <input
                 type="text"
@@ -79,45 +111,27 @@ const ProfileContent = ({ active }) => {
             </div>
           </div>
           <div className="flex items-center flex-wrap gap-4">
-            <div className="flex-auto flex flex-col gap-2">
-              <label htmlFor="phone_number">Phone Number</label>
+            <div className="flex-auto flex flex-col gap-1">
+              <label htmlFor="phoneNumber">Phone Number</label>
               <input
-                type="text"
+                type="number"
                 className="py-2 w-full border border-gay-300 focus:outline-none px-3"
-                id="phone_number"
+                id="phoneNumber"
                 onChange={handleChnageInput}
+                defaultValue={currentUser?.phoneNumber}
               />
             </div>
-            <div className="flex-auto flex flex-col gap-2">
-              <label htmlFor="zipCode">Zip Code</label>
+            <div className="flex-auto flex flex-col gap-1">
+              <label htmlFor="password">Password</label>
               <input
-                type="text"
+                type="password"
                 className="py-2 w-full border border-gay-300 focus:outline-none px-3"
-                id="ZipCode"
-                onChange={handleChnageInput}
-              />
-            </div>
-          </div>
-          <div className="flex items-center flex-wrap gap-4">
-            <div className="flex-auto flex flex-col gap-2">
-              <label htmlFor="fulname">Address1</label>
-              <input
-                type="text"
-                className="py-2 w-full border border-gay-300 focus:outline-none px-3"
-                id="address1"
-                onChange={handleChnageInput}
-              />
-            </div>
-            <div className="flex-auto flex flex-col gap-2">
-              <label htmlFor="fulname">Addrsss2</label>
-              <input
-                type="text"
-                className="py-2 w-full border border-gay-300 focus:outline-none px-3"
-                id="address2"
+                id="password"
                 onChange={handleChnageInput}
               />
             </div>
           </div>
+
           <button className="py-2 px-8 border w-fit border-indigo-500 rounded-md text-indigo-500">
             Update
           </button>
@@ -456,13 +470,23 @@ const PaymentMethod = () => {
 };
 
 const Address = () => {
+  const [open, setOpen] = useState(false);
+  const [formAddress, setFormAddress] = useState({});
+  const addressType = [
+    { name: 'Default' },
+    { name: 'Home' },
+    { name: 'Office' },
+  ];
   return (
     <div className="w-full px-5">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-[25px] font-[600] text-[#000000ba] pb-2">
           My Addresses
         </h1>
-        <div className={`py-2 px-5 bg-black text-white !rounded-md`}>
+        <div
+          onClick={() => setOpen(true)}
+          className={`cursor-pointer py-2 px-5 bg-black text-white !rounded-md`}
+        >
           <span className="text-[#fff]">Add New</span>
         </div>
       </div>
@@ -483,6 +507,122 @@ const Address = () => {
           <AiOutlineDelete size={25} className="cursor-pointer" />
         </div>
       </div>
+      {open && (
+        <div className="fixed top-0 left-0 w-full h-screen bg-[#00000026] z-[99999] flex items-center justify-center">
+          <form className="max-w-lg w-full h-[60%] bg-white overflow-y-auto shadow-md rounded-md py-6 px-3 flex flex-col gap-3 relative">
+            <MdClose
+              size={25}
+              className="absolute top-3 right-3"
+              onClick={() => setOpen(false)}
+            />
+            <h2 className="text-center text-xl font-medium my-3">
+              Add New Address
+            </h2>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                Country
+              </label>
+              <select
+                id="country"
+                value={formAddress?.country}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              >
+                <option value="choose country">Choose your country</option>
+                {Country.getAllCountries().map((item) => (
+                  <option
+                    className="block pb-2"
+                    key={item.isoCode}
+                    value={item.isoCode}
+                  >
+                    <span> {item?.flag}</span>
+                    <span> {item?.name}</span>
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                State
+              </label>
+              <select
+                id="country"
+                value={formAddress?.country}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              >
+                <option value="choose country">Choose your State</option>
+                {State?.getStatesOfCountry(formAddress?.country).map((item) => (
+                  <option
+                    className="block pb-2"
+                    key={item.isoCode}
+                    value={item.isoCode}
+                  >
+                    <span> {item?.name}</span>
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                Address1
+              </label>
+              <input
+                type="text"
+                id="address1"
+                value={formAddress?.address1}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                Address2
+              </label>
+              <input
+                type="text"
+                id="address2"
+                value={formAddress?.address2}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                zipCode
+              </label>
+              <input
+                type="text"
+                id="zipCode"
+                value={formAddress?.zipCode}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="country" className="text-lg text-gray-600">
+                Country
+              </label>
+              <select
+                id="country"
+                value={formAddress?.country}
+                className="px-3 py-2 focus:outline-none border border-gray-300 rounded-md"
+              >
+                <option value="choose country">Choose Address Type</option>
+                {addressType?.map((item) => (
+                  <option
+                    className="block pb-2"
+                    key={item?.name}
+                    value={item?.name}
+                  >
+                    <span> {item?.name}</span>
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button className="w-full py-2 bg-white border border-gray-300 rounded-md mt-2">
+              Add Address
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

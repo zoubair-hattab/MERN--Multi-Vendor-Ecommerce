@@ -107,9 +107,11 @@ export const getUser = async (req, res, next) => {
     if (!user) {
       return next(new ErrorHandler('User is not exits', 404));
     }
+    const { password, ...rest } = user._doc;
+
     res.status(200).json({
       success: true,
-      message: user,
+      message: rest,
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));

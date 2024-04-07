@@ -136,9 +136,11 @@ export const getShop = async (req, res, next) => {
     if (!shop) {
       return next(new ErrorHandler('Shop is not exits', 404));
     }
+    const { password, ...rest } = shop._doc;
+
     res.status(200).json({
       success: true,
-      message: shop,
+      message: rest,
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));

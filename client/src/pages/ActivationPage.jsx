@@ -8,7 +8,7 @@ const ActivationPage = () => {
   useEffect(() => {
     const sendRequest = async () => {
       try {
-        await axios.post(`${urlServer}/auth/activation/${token}`);
+        await axios.post(`${urlServer}/auth/user/activation/${token}`);
         setError(false);
       } catch (error) {
         setError(true);

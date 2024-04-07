@@ -3,11 +3,15 @@ import dotenv from 'dotenv';
 import ErrorHandler from './middlewares/error.js';
 import cookieParser from 'cookie-parser';
 import authUserRouters from './routers/auth.user.router.js';
+
+import userRouters from './routers/user.router.js';
+
 import authShopRouters from './routers/auth.shop.router.js';
 import shopRouters from './routers/shop.router.js';
 import productRouters from './routers/product.router.js';
 import eventRouters from './routers/event.router.js';
 import couponRouters from './routers/coupon.router.js';
+
 import cors from 'cors';
 dotenv.config();
 
@@ -23,6 +27,7 @@ app.use('/', express.static('uploads'));
 
 app.use(cookieParser());
 app.use('/api/v2/auth/user', authUserRouters);
+app.use('/api/v2/user', userRouters);
 app.use('/api/v2/auth/shop', authShopRouters);
 app.use('/api/v2/shop', shopRouters);
 app.use('/api/v2/product', productRouters);
