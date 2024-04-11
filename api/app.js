@@ -11,6 +11,8 @@ import shopRouters from './routers/shop.router.js';
 import productRouters from './routers/product.router.js';
 import eventRouters from './routers/event.router.js';
 import couponRouters from './routers/coupon.router.js';
+import paymentRouters from './routers/payment.router.js';
+import orderRouters from './routers/order.router.js';
 
 import cors from 'cors';
 dotenv.config();
@@ -33,6 +35,8 @@ app.use('/api/v2/shop', shopRouters);
 app.use('/api/v2/product', productRouters);
 app.use('/api/v2/event', eventRouters);
 app.use('/api/v2/coupon', couponRouters);
+app.use('/api/v2/payment', paymentRouters);
+app.use('/api/v2/order', orderRouters);
 
 app.use(ErrorHandler);
 export default app;

@@ -28,10 +28,17 @@ const cartReducer = createSlice({
       }
     },
     removeFromCart: (state, action) => {
-      return {
-        ...state,
-        cart: state.cart.filter((i) => i._id !== action.payload._id),
-      };
+      if (action.payload === null) {
+        return {
+          ...state,
+          cart: [],
+        };
+      } else {
+        return {
+          ...state,
+          cart: state.cart.filter((i) => i._id !== action.payload),
+        };
+      }
     },
   },
 });

@@ -32,7 +32,10 @@ import ShopPage from './pages/shop/ShopPage';
 import DashboardPage from './pages/shop/DashboardPage';
 import { laodProduct } from './redux/actions/productAction';
 import { laodEvent } from './redux/actions/eventAction';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 function App() {
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(loadUser());
@@ -42,6 +45,11 @@ function App() {
   }, []);
   return (
     <BrowserRouter>
+      <Elements stripe={stripePromise}>
+        <Routes>
+          <Route path="/payment" element={<PaymentPage />} />
+        </Routes>
+      </Elements>
       <Routes>
         <Route path="/">
           <Route index element={<HomePage />} />
@@ -57,8 +65,7 @@ function App() {
           <Route path="faq" element={<FAQPage />} />
           <Route element={<UserRouter />}>
             <Route path="checkout" element={<CheckoutPage />} />
-            <Route path="payment" element={<PaymentPage />} />
-            <Route path="order/success/:id" element={<OrderSuccessPage />} />
+            <Route path="order/success" element={<OrderSuccessPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
 
