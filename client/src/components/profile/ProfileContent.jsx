@@ -169,18 +169,20 @@ const ProfileContent = ({ active }) => {
 };
 
 const AllOrders = () => {
-  const orders = [
-    {
-      _id: '7463hvbfbhfbrtr28820221',
-      orderItems: [
+  const [orders, setOrders] = useState();
+  useEffect(() => {
+    const loadOrders = async () => {
+      const { data } = await axios.get(
+        `${urlServer}/order/get-all-orders-by-user`,
         {
-          name: 'Iphone 14 pro max',
-        },
-      ],
-      totalPrice: 120,
-      orderStatus: 'Processing',
-    },
-  ];
+          withCredentials: true,
+        }
+      );
+      console.log(data);
+      setOrders(data.message);
+    };
+    loadOrders();
+  }, []);
 
   const columns = [
     { field: 'id', headerName: 'Order ID', minWidth: 150, flex: 0.7 },
@@ -222,7 +224,7 @@ const AllOrders = () => {
       renderCell: (params) => {
         return (
           <>
-            <Link to={`/order/${params.id}`}>
+            <Link to={`/user/order/${params.id}`}>
               <Button>
                 <AiOutlineArrowRight size={20} />
               </Button>
@@ -234,14 +236,13 @@ const AllOrders = () => {
   ];
 
   const row = [];
-
   orders &&
     orders.forEach((item) => {
       row.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
+        itemsQty: item.cart.length,
         total: 'US$ ' + item.totalPrice,
-        status: item.orderStatus,
+        status: item.status,
       });
     });
 

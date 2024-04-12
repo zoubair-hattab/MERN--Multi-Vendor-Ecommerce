@@ -16,7 +16,7 @@ const SideBar = ({ active, setActive }) => {
   const loagout = async () => {
     try {
       const { data } = await axios.post(
-        `${urlServer}/auth/logout`,
+        `${urlServer}/auth/user/logout`,
         {},
         {
           withCredentials: true,

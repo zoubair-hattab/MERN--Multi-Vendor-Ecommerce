@@ -34,6 +34,8 @@ import { laodProduct } from './redux/actions/productAction';
 import { laodEvent } from './redux/actions/eventAction';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import OrderDetails from './pages/shop/OrderDetails';
+import UserOrderDetails from './pages/UserOrderDetails';
 function App() {
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE);
   const dispatch = useDispatch();
@@ -67,6 +69,7 @@ function App() {
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="order/success" element={<OrderSuccessPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="/user/order/:id" element={<UserOrderDetails />} />
           </Route>
 
           {/* shop router */}
@@ -77,6 +80,7 @@ function App() {
           </Route>
           <Route element={<SellerRouter />}>
             <Route path="shop/dashboard" element={<DashboardPage />} />
+            <Route path="order/:id" element={<OrderDetails />} />
           </Route>
           <Route path="shop/:id" element={<ShopPage />} />
 

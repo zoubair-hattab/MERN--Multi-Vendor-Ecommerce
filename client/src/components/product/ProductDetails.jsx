@@ -15,6 +15,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from '../../redux/reducers/wishlistReducer';
+import Ratings from './Ratings';
 
 const ProductDetails = ({ setOpenModal, product }) => {
   const { cart } = useSelector((state) => state.cart);
@@ -209,42 +210,36 @@ const ProductDetailsInfo = ({ data }) => {
       {active === 1 ? (
         <>
           <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Product details are a crucial part of any eCommerce website or
-            online marketplace. These details help the potential customers to
-            make an informed decision about the product they are interested in
-            buying. A well-written product description can also be a powerful
-            marketing tool that can help to increase sales. Product details
-            typically include information about the product's features,
-            specifications, dimensions, weight, materials, and other relevant
-            information that can help language, and be honest and transparent
-            about the product's features and limitations.
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            customers to understand the product better. The product details
-            section should also include high-quality images and videos of the
-            product, as well as customer reviews and ratings. When writing
-            product details, it is essential to keep the target audience in
-            mind. The language used should be clear and easy to understand, and
-            technical terms should be explained in simple language. The tone of
-            the product details should be persuasive, highlighting the unique
-            features of the
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            customers to understand the product better. The product details
-            section should also include high-quality images and videos of the
-            product, as well as customer reviews and ratings. When writing
-            product details, it is essential to keep the target audience in
-            mind. The language used should be clear and easy to understand, and
-            technical terms should be explained in simple language. The tone of
-            the product details should be persuasive, highlighting the unique
-            features of the
+            {data?.description}
           </p>
         </>
       ) : null}
 
       {active === 2 ? (
-        <div className="w-full justify-center min-h-[40vh] flex items-center">
-          <p>No Reviews yet!</p>
+        <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
+          {data &&
+            data?.reviews.map((item, index) => (
+              <div className="w-full flex my-2">
+                <img
+                  src={`${backend_url}/${item.user.avatar}`}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full"
+                />
+                <div className="pl-2 ">
+                  <div className="w-full flex items-center">
+                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
+                    <Ratings rating={item?.rating} />
+                  </div>
+                  <p>{item.comment}</p>
+                </div>
+              </div>
+            ))}
+
+          <div className="w-full flex justify-center">
+            {data && data?.reviews.length === 0 && (
+              <h5>No Reviews have for this product!</h5>
+            )}
+          </div>
         </div>
       ) : null}
 
@@ -253,14 +248,14 @@ const ProductDetailsInfo = ({ data }) => {
           <div className="w-full md:w-[50%]">
             <div className="flex items-center">
               <img
-                src={data.shop.shop_avatar.url}
+                src={`${backend_url}`}
                 className="w-[50px] h-[50px] rounded-full"
                 alt=""
               />
               <div className="pl-3">
-                <h3 className={`shop_name`}>{data.shop.name}</h3>
+                <h3 className={`shop_name`}>{data?.shop.name}</h3>
                 <h5 className="pb-2 text-[15px]">
-                  ({data.shop.ratings}) Ratings
+                  ({data?.shop?.ratings}) Ratings
                 </h5>
               </div>
             </div>

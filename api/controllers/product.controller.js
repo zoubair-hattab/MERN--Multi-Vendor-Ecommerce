@@ -1,3 +1,4 @@
+import Order from '../models/order.model.js';
 import Product from '../models/product.model.js';
 import Shop from '../models/shop.model.js';
 import ErrorHandler from '../utils/ErrorHandler.js';
@@ -85,6 +86,55 @@ export const deleteProduct = async (req, res, next) => {
       message: 'Product Deleted successfully!',
     });
   } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+};
+export const createReview = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { rating, comment, productId, orderId } = req.body;
+    console.log(req.body);
+    const product = await Product.findById(productId);
+    if (!product) {
+      return next(new ErrorHandler('Product Not found .', 404));
+    }
+    const review = {
+      user,
+      rating,
+      comment,
+      productId,
+    };
+    const isReveiwed = product.reviews.find((item) => item.user._id == user.id);
+    if (isReveiwed) {
+      product.reviews.forEach((rev) => {
+        if (rev.user._id === user.id) {
+          (rev.rating = rating), (rev.comment = comment), (rev.user = user);
+        }
+      });
+    } else {
+      product.reviews.push(review);
+    }
+    let avg = 0;
+    product.reviews.forEach((rev) => {
+      avg += rev.rating;
+    });
+
+    product.ratings = avg / product.reviews.length;
+
+    await product.save({ validateBeforeSave: false });
+
+    await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { 'cart.$[elem].isReviewed': true } },
+      { arrayFilters: [{ 'elem._id': productId }], new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Reviwed succesfully!',
+    });
+  } catch (error) {
+    console.log(error);
     return next(new ErrorHandler(error.message, 500));
   }
 };

@@ -16,6 +16,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from '../../redux/reducers/wishlistReducer';
+import Ratings from './Ratings';
 
 const SingleProduct = ({ product }) => {
   const [click, setClick] = useState(false);
@@ -57,31 +58,7 @@ const SingleProduct = ({ product }) => {
             {product?.name}
           </h2>
           <div className="flex items-center gap-2 ">
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              size={22}
-              color="#F6BA00"
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              size={22}
-              color="#F6BA00"
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              size={22}
-              color="#F6BA00"
-            />
-            <AiFillStar
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-              size={22}
-            />
-            <AiOutlineStar
-              size={22}
-              className="mr-2 cursor-pointer"
-              color="#F6BA00"
-            />
+            <Ratings rating={product?.ratings} />
           </div>
           <div className="flex item-center justify-between pt-2">
             <p className="font-medium text-gray-700 text-xl">

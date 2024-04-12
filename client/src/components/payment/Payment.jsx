@@ -67,7 +67,9 @@ const Payment = () => {
           };
 
           await axios
-            .post(`${urlServer}/order/create-order`, order, config)
+            .post(`${urlServer}/order/create-order`, order, {
+              withCredentials: true,
+            })
             .then((res) => {
               disptach(removeFromCart(null));
               navigate('/order/success');
@@ -131,7 +133,9 @@ const Payment = () => {
     };
 
     await axios
-      .post(`${urlServer}/order/create-order`, order, config)
+      .post(`${urlServer}/order/create-order`, order, {
+        withCredentials: true,
+      })
       .then((res) => {
         disptach(removeFromCart(null));
         navigate('/order/success');
@@ -152,7 +156,9 @@ const Payment = () => {
     };
 
     await axios
-      .post(`${urlServer}/order/create-order`, order, config)
+      .post(`${urlServer}/order/create-order`, order, {
+        withCredentials: true,
+      })
       .then((res) => {
         disptach(removeFromCart(null));
         navigate('/order/success');
